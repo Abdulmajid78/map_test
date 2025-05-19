@@ -1,0 +1,48 @@
+<!-- templates/location_list.html -->
+{% extends 'base.html' %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        .map-small { 
+            height: 200px; 
+            width: 100%; 
+            margin-top: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>All Locations</h1>
+    
+    {% if locations %}
+        {% for location in locations %}
+            <div class="location-card">
+                <h2>{{ location.name }}</h2>
+                <p>{{ location.description }}</p>
+                <p>
+                    <strong>Coordinates:</strong> 
+                    {{ location.latitude }}, {{ location.longitude }}
+                </p>
+                <div id="map-{{ location.id }}" class="map-small"></div>
+                
+                <script>
+                    var map{{ location.id }} = L.map('map-{{ location.id }}').setView([{{ location.latitude }}, {{ location.longitude }}], 13);
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map{{ location.id }});
+                    
+                    L.marker([{{ location.latitude }}, {{ location.longitude }}])
+                        .addTo(map{{ location.id }})
+                        .bindPopup("{{ location.name }}");
+                </script>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No locations have been added yet.</p>
+    {% endif %}
+    
+    <a href="{% url 'add_location' %}"><button>Add New Location</button></a>
+{% endblock %}
